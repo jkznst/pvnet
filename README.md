@@ -5,7 +5,7 @@
 > [PVNet: Pixel-wise Voting Network for 6DoF Pose Estimation](https://arxiv.org/pdf/1812.11788.pdf)  
 > Sida Peng, Yuan Liu, Qixing Huang, Xiaowei Zhou, Hujun Bao   
 > CVPR 2019 oral  
-> [Project Page](https://zju-3dv.github.io/pvnet)
+> [Project Page](https://zju3dv.github.io/pvnet)
 
 Any questions or discussions are welcomed!
 
@@ -15,9 +15,17 @@ Check [TRUNCATION_LINEMOD.md](TRUNCATION_LINEMOD.md) for information about the T
 
 ## Installation
 
-The code uses PyTorch v0.4.0. After installing PyTorch, we need compile several files, which works fine with gcc 5.4.0.
+1. Set up python 3.6.7 environment
 
-1. Compile the Ransac Voting Layer
+```
+pip install -r requirements.txt
+```
+
+We need compile several files, which works fine with pytorch v0.4.1/v1.1 and gcc 5.4.0.
+
+For users with a RTX GPU, you must use CUDA10 and pytorch v1.1 built from CUDA10.
+
+2. Compile the Ransac Voting Layer
 
 ```
 ROOT=/path/to/pvnet
@@ -25,7 +33,7 @@ cd $ROOT/lib/ransac_voting_gpu_layer
 python setup.py build_ext --inplace
 ```
 
-2. Compile some extension utils
+3. Compile some extension utils
 
 ```
 cd $ROOT/lib/utils/extend_utils
@@ -34,13 +42,18 @@ cd $ROOT/lib/utils/extend_utils
 Revise the `cuda_include` and `dart` in `build_extend_utils_cffi.py` to be compatible with the CUDA in your computer.
 
 ```
+sudo apt-get install libgoogle-glog-dev=0.3.4-0.1
+sudo apt-get install libsuitesparse-dev=1:4.4.6-1
+sudo apt-get install libatlas-base-dev=3.10.2-9
 python build_extend_utils_cffi.py
 ```
 
-Add the `lib` under `extend_utils` to the LD_LIDBRARY_PATH
+If you cannot install `libsuitesparse-dev=1:4.4.6-1`, please install `libsuitesparse`, run `build_ceres.sh` and move `ceres/ceres-solver/build/lib/libceres.so*` to `lib/utils/extend_utils/lib`.
+
+Add the `lib` under `extend_utils` to the LD_LIBRARY_PATH
 
 ```
-export LD_LIDBRARY_PATH=$LD_LIDBRARY_PATH:/path/to/bb8-voter/lib/utils/extend_utils/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/pvnet/lib/utils/extend_utils/lib
 ```
 
 ## Dataset Configuration
@@ -49,9 +62,9 @@ export LD_LIDBRARY_PATH=$LD_LIDBRARY_PATH:/path/to/bb8-voter/lib/utils/extend_ut
 
 Download the LINEMOD, which can be found at [here](https://1drv.ms/u/s!AtZjYZ01QjphgQ56t4wCharVSfxL).
 
-Download the LINEMOD_ORIG, which can be found at [here](http://campar.in.tum.de/Main/StefanHinterstoisser).
+Download the LINEMOD_ORIG, which can be found at [here](./tools/download_linemod_orig.sh).
 
-Download the OCCLUSION_LINEMOD, which can be found at [here](https://cloudstore.zih.tu-dresden.de/index.php/s/a65ec05fedd4890ae8ced82dfcf92ad8/download)
+Download the OCCLUSION_LINEMOD, which can be found at [here](https://1drv.ms/u/s!AtZjYZ01QjphgRCzvy05fjKqR__e).
 
 ### Create the soft link
 
@@ -86,6 +99,10 @@ If setup correctly, the output will look like
 
 ![cat](./assets/cat.png)
 
+### Visualization of the voting procedure
+
+We add a jupyter notebook [visualization.ipynb](./visualization.ipynb) for the keypoint detection pipeline of PVNet, aiming to make it easier for readers to understand our paper. Thanks for Kudlur, M 's suggestion. 
+
 ## Training and testing
 
 ### Training on the LINEMOD
@@ -93,7 +110,7 @@ If setup correctly, the output will look like
 Before training, remember to add the `lib` under `extend_utils` to the LD_LIDBRARY_PATH
 
 ```
-export LD_LIDBRARY_PATH=$LD_LIDBRARY_PATH:/path/to/bb8-voter/lib/utils/extend_utils/lib
+export LD_LIDBRARY_PATH=$LD_LIDBRARY_PATH:/path/to/pvnet/lib/utils/extend_utils/lib
 ```
 
 Training
